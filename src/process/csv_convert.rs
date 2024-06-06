@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{to_string_pretty, Value};
 use serde_yaml::to_string;
 
-use crate::opts::OutputFormat;
+use crate::cli::OutputFormat;
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]
