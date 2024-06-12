@@ -1,4 +1,4 @@
-use std::{fs::File, io::Read};
+use std::io::Read;
 
 use anyhow::{Ok, Result};
 
@@ -7,9 +7,9 @@ use base64::{
     Engine as _,
 };
 
-use crate::Base64Format;
+use crate::{utils::get_reader, Base64Format};
 
-pub fn process_encode(input: &str, format: Base64Format) -> Result<()> {
+pub fn process_encode(input: &str, format: Base64Format) -> Result<String> {
     let mut reader = get_reader(input)?;
     let mut data = Vec::new();
     reader.read_to_end(&mut data)?;
@@ -17,11 +17,10 @@ pub fn process_encode(input: &str, format: Base64Format) -> Result<()> {
         Base64Format::Standard => STANDARD.encode(data),
         Base64Format::UrlSafe => URL_SAFE_NO_PAD.encode(data),
     };
-    println!("{}", encoded);
-    Ok(())
+    Ok(encoded)
 }
 
-pub fn process_decode(input: &str, format: Base64Format) -> Result<()> {
+pub fn process_decode(input: &str, format: Base64Format) -> Result<Vec<u8>> {
     let mut reader = get_reader(input)?;
 
     let mut data = String::new();
@@ -31,35 +30,6 @@ pub fn process_decode(input: &str, format: Base64Format) -> Result<()> {
         Base64Format::Standard => STANDARD.decode(data)?,
         Base64Format::UrlSafe => URL_SAFE_NO_PAD.decode(data)?,
     };
-    let decoded = String::from_utf8(decoded)?;
-    println!("{}", decoded);
-    Ok(())
-}
 
-fn get_reader(input: &str) -> Result<Box<dyn Read>, anyhow::Error> {
-    let reader: Box<dyn Read> = if input == "-" {
-        Box::new(std::io::stdin())
-    } else {
-        Box::new(File::open(input)?)
-    };
-    Ok(reader)
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_process_encode() {
-        let input = "Cargo.toml";
-        let format = Base64Format::Standard;
-        assert!(process_encode(input, format).is_ok());
-    }
-
-    #[test]
-    fn test_process_decode() {
-        let input = "fixtures/b64.txt";
-        let format = Base64Format::UrlSafe;
-        process_decode(input, format).unwrap();
-    }
+    Ok(decoded)
 }

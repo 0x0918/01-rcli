@@ -1,9 +1,11 @@
 use clap::Parser;
-
 use rcli::{
-    process_csv, process_decode, process_encode, process_genpass, Base64Subcommand, Opts,
-    Subcommand,
+    process_csv, process_decode, process_encode, process_genpass, process_text_generate,
+    process_text_sign, process_text_verify, Base64Subcommand, Opts, Subcommand, TextSignFormat,
+    TextSubcommand,
 };
+use std::fs::*;
+use zxcvbn::zxcvbn;
 
 fn main() -> anyhow::Result<()> {
     let opts = Opts::parse();
@@ -18,21 +20,53 @@ fn main() -> anyhow::Result<()> {
         }
 
         Subcommand::Genpass(opts) => {
-            process_genpass(
+            let pass = process_genpass(
                 opts.length,
                 opts.uppercase,
                 opts.lowercase,
                 opts.number,
                 opts.symbol,
             )?;
+            println!("{}", pass);
+            let estimate = zxcvbn(&pass, &[]);
+            eprintln!("password strength: {}", estimate.score());
         }
 
         Subcommand::Base64(subcmd) => match subcmd {
             Base64Subcommand::Decode(opts) => {
-                process_decode(&opts.input, opts.format)?;
+                let decode = process_decode(&opts.input, opts.format)?;
+                let decode = String::from_utf8(decode)?;
+                println!("{}", decode);
             }
             Base64Subcommand::Encode(opts) => {
-                process_encode(&opts.input, opts.format)?;
+                let encode = process_encode(&opts.input, opts.format)?;
+                println!("{}", encode);
+            }
+        },
+
+        Subcommand::Text(subcmd) => match subcmd {
+            TextSubcommand::Sign(opts) => {
+                let sign = process_text_sign(&opts.input, &opts.key, opts.format)?;
+                println!("{}", sign);
+            }
+
+            TextSubcommand::Verify(opts) => {
+                let verified = process_text_verify(&opts.input, &opts.key, opts.format, &opts.sig)?;
+                println!("{}", verified);
+            }
+            TextSubcommand::Generate(opts) => {
+                let key = process_text_generate(opts.format)?;
+                match opts.format {
+                    TextSignFormat::Blake3 => {
+                        let name = opts.output.join("blake3.txt");
+                        write(name, &key[0])?;
+                    }
+                    TextSignFormat::Ed25519 => {
+                        let name = &opts.output;
+                        write(name.join("ed25519.sk"), &key[0])?;
+                        write(name.join("ed25519.pk"), &key[1])?;
+                    }
+                }
             }
         },
     }
