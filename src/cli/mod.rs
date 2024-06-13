@@ -1,6 +1,7 @@
 mod base64;
 mod csv;
 mod genpass;
+mod http;
 mod text;
 
 use std::path::{Path, PathBuf};
@@ -9,6 +10,7 @@ pub use base64::{Base64Format, Base64Subcommand};
 use clap::Parser;
 use csv::CsvOpts;
 use genpass::GenpassOpts;
+pub use http::HttpSubcommand;
 pub use text::{TextSignFormat, TextSubcommand};
 
 #[derive(Debug, Parser)]
@@ -28,6 +30,8 @@ pub enum Subcommand {
     Base64(Base64Subcommand),
     #[command(subcommand)]
     Text(TextSubcommand),
+    #[command(subcommand)]
+    Http(HttpSubcommand),
 }
 
 #[derive(Debug, Clone, Copy)]
