@@ -6,12 +6,14 @@ use std::{
 
 use anyhow::{anyhow, Error, Ok, Result};
 use clap::Parser;
+use enum_dispatch::enum_dispatch;
 
 use super::{verify_file, verify_path};
 use crate::{process_text_generate, process_text_sign, process_text_verify, CmdExecutor};
 use std::fs::*;
 
 #[derive(Debug, Parser)]
+#[enum_dispatch(CmdExecutor)]
 pub enum TextSubcommand {
     #[command(about = "Sign a message with a private/shared key")]
     Sign(TextSignOpts),
@@ -90,17 +92,6 @@ impl From<TextSignFormat> for &'static str {
 impl Display for TextSignFormat {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{}", Into::<&str>::into(*self))
-    }
-}
-
-impl CmdExecutor for TextSubcommand {
-    async fn execute(&self) -> Result<()> {
-        match self {
-            TextSubcommand::Sign(opts) => opts.execute().await,
-
-            TextSubcommand::Verify(opts) => opts.execute().await,
-            TextSubcommand::Generate(opts) => opts.execute().await,
-        }
     }
 }
 
