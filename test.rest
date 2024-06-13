@@ -1,2 +1,5 @@
 ### Test index page
 GET  http://localhost:8080/fixtures/blake3.txt
+
+### Test static file with tower-http
+GET http://localhost:8080/tower/fixtures/blake3.txt
