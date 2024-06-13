@@ -6,6 +6,8 @@ use std::{
 use anyhow::{anyhow, Error};
 use clap::Parser;
 
+use crate::{process_csv, CmdExecutor};
+
 use super::{verify_file, OutputFormat};
 
 #[derive(Debug, Parser)]
@@ -36,6 +38,17 @@ impl From<OutputFormat> for &'static str {
             OutputFormat::Json => "json",
             OutputFormat::Yaml => "yaml",
         }
+    }
+}
+
+impl CmdExecutor for CsvOpts {
+    async fn execute(&self) -> anyhow::Result<()> {
+        let output = if let Some(output) = &self.output {
+            output.clone()
+        } else {
+            format!("output.{}", self.format)
+        };
+        process_csv(&self.input, output, self.format)
     }
 }
 

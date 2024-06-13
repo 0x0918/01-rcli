@@ -13,6 +13,8 @@ use genpass::GenpassOpts;
 pub use http::HttpSubcommand;
 pub use text::{TextSignFormat, TextSubcommand};
 
+use crate::CmdExecutor;
+
 #[derive(Debug, Parser)]
 #[command(name = "rcli", version, author, about, long_about = None)]
 pub struct Opts {
@@ -26,12 +28,24 @@ pub enum Subcommand {
     Csv(CsvOpts),
     #[command(name = "genpass", about = "Generate a random password")]
     Genpass(GenpassOpts),
-    #[command(subcommand)]
+    #[command(subcommand, about = "Base64 encode/decode")]
     Base64(Base64Subcommand),
-    #[command(subcommand)]
+    #[command(subcommand, about = "Text sign/verify")]
     Text(TextSubcommand),
-    #[command(subcommand)]
+    #[command(subcommand, about = "Http server")]
     Http(HttpSubcommand),
+}
+
+impl CmdExecutor for Subcommand {
+    async fn execute(&self) -> anyhow::Result<()> {
+        match self {
+            Subcommand::Csv(opts) => opts.execute().await,
+            Subcommand::Genpass(opts) => opts.execute().await,
+            Subcommand::Base64(opts) => opts.execute().await,
+            Subcommand::Text(opts) => opts.execute().await,
+            Subcommand::Http(opts) => opts.execute().await,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
