@@ -17,6 +17,7 @@
 # this list would mean the nix crate, as well as any of its exclusive
 # dependencies not shared by any other crates, would be ignored, as the target
 # list here is effectively saying which targets you are building for.
+[graph]
 targets = [
   # The triple can be any string, but only the target triples built in to
   # rustc (as of 1.40) can be checked against actual config expressions
@@ -47,9 +48,7 @@ yanked = "warn"
 notice = "warn"
 # A list of advisory IDs to ignore. Note that ignored advisories will still
 # output a note when they are encountered.
-ignore = [
-  #"RUSTSEC-0000-0000",
-]
+ignore = []
 # Threshold for security vulnerabilities, any vulnerability with a CVSS score
 # lower than the range specified will be ignored. Note that ignored advisories
 # will still output a note when they are encountered.
@@ -72,12 +71,8 @@ unlicensed = "allow"
 allow = [
   "MIT",
   "Apache-2.0",
-  "Unicode-DFS-2016",
-  "MPL-2.0",
-  "BSD-2-Clause",
   "BSD-3-Clause",
-  "ISC",
-  "CC0-1.0",
+  "Unicode-3.0",
 ]
 # List of explicitly disallowed licenses
 # See https://spdx.org/licenses/ for list of possible licenses
@@ -106,11 +101,7 @@ default = "deny"
 confidence-threshold = 0.8
 # Allow 1 or more licenses on a per-crate basis, so that particular licenses
 # aren't accepted for every possible crate as with the normal allow list
-exceptions = [
-  # Each entry is the crate and version constraint, and its specific allow
-  # list
-  #{ allow = ["Zlib"], name = "adler32", version = "*" },
-]
+exceptions = []
 
 # Some crates don't have (easily) machine readable licensing information,
 # adding a clarification entry for it allows you to manually specify the
