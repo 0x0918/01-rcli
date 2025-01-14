@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 
 use crate::opts::OutputFormat;
+
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "PascalCase")]
 struct Player {
