@@ -1,13 +1,15 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 pub use base64::*;
 pub use clap::Parser;
 pub use csv::*;
 pub use genpass::*;
+pub use text::*;
 
 mod base64;
 mod csv;
 mod genpass;
+mod text;
 
 #[derive(Debug, Parser)]
 #[command(name = "cli", version, about, author, long_about = None)]
@@ -24,9 +26,11 @@ pub enum SubCommand {
     Genpass(GenPassOpts),
     #[command(subcommand)]
     Base64(Base64SubCommand),
+    #[command(subcommand)]
+    Text(TextSubCommand),
 }
 
-fn verify_input_file(filename: &str) -> Result<String, &'static str> {
+fn verify_file(filename: &str) -> Result<String, &'static str> {
     if filename == "-" || Path::new(filename).exists() {
         Ok(filename.into())
     } else {
@@ -34,15 +38,24 @@ fn verify_input_file(filename: &str) -> Result<String, &'static str> {
     }
 }
 
+fn verify_path(path: &str) -> Result<PathBuf, &'static str> {
+    let p = Path::new(path);
+    if p.exists() && p.is_dir() {
+        Ok(path.into())
+    } else {
+        Err("Path does not exist or is not a directory")
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::cli::verify_input_file;
+    use crate::cli::verify_file;
 
     #[test]
     fn test_verify_input_file() {
-        assert_eq!(verify_input_file("-"), Ok("-".into()));
-        assert_eq!(verify_input_file("*"), Err("File does not exist"));
-        assert_eq!(verify_input_file("Cargo.toml"), Ok("Cargo.toml".into()));
-        assert_eq!(verify_input_file("Not"), Err("File does not exist"));
+        assert_eq!(verify_file("-"), Ok("-".into()));
+        assert_eq!(verify_file("*"), Err("File does not exist"));
+        assert_eq!(verify_file("Cargo.toml"), Ok("Cargo.toml".into()));
+        assert_eq!(verify_file("Not"), Err("File does not exist"));
     }
 }
