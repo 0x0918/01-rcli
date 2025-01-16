@@ -3,11 +3,10 @@ use std::path::{Path, PathBuf};
 pub use base64::*;
 pub use clap::Parser;
 pub use csv::*;
+use enum_dispatch::enum_dispatch;
 pub use genpass::*;
 pub use http::*;
 pub use text::*;
-
-use crate::CmdExecutor;
 
 mod base64;
 mod csv;
@@ -23,6 +22,7 @@ pub struct Opts {
 }
 
 #[derive(Debug, Parser)]
+#[enum_dispatch(CmdExecutor)]
 pub enum SubCommand {
     #[command(name = "csv", about = "show csv, or convert csv to other formats")]
     Csv(CsvOpts),
@@ -50,18 +50,6 @@ fn verify_path(path: &str) -> Result<PathBuf, &'static str> {
         Ok(path.into())
     } else {
         Err("Path does not exist or is not a directory")
-    }
-}
-
-impl CmdExecutor for SubCommand {
-    async fn execute(self) -> anyhow::Result<()> {
-        match self {
-            SubCommand::Csv(opts) => opts.execute().await,
-            SubCommand::Genpass(opts) => opts.execute().await,
-            SubCommand::Base64(opts) => opts.execute().await,
-            SubCommand::Text(opts) => opts.execute().await,
-            SubCommand::Http(opts) => opts.execute().await,
-        }
     }
 }
 
