@@ -4,11 +4,13 @@ pub use base64::*;
 pub use clap::Parser;
 pub use csv::*;
 pub use genpass::*;
+pub use http::*;
 pub use text::*;
 
 mod base64;
 mod csv;
 mod genpass;
+mod http;
 mod text;
 
 #[derive(Debug, Parser)]
@@ -28,6 +30,8 @@ pub enum SubCommand {
     Base64(Base64SubCommand),
     #[command(subcommand)]
     Text(TextSubCommand),
+    #[command(subcommand)]
+    Http(HttpSubCommand),
 }
 
 fn verify_file(filename: &str) -> Result<String, &'static str> {
